@@ -1,5 +1,8 @@
 'use client';
 
+import ContributeForm from "@/components/ContributionForm";
+import ListClaims from "@/components/ListClaims";
+import MakeAClaim from "@/components/MakeAClaim";
 import { checkWalletConnection, connectWallet, getNetworkCurrency, getWalletBalance } from "@/utils/wallet";
 import { useEffect, useState } from "react";
 
@@ -7,6 +10,7 @@ export default function Home() {
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [balance, setBalance] = useState('0');
   const [currency, setCurrency] = useState('');
+  const [activeTab, setActiveTab] = useState('contribute');
 
   const handleConnectWallet = async () => {
     try {
@@ -84,10 +88,65 @@ export default function Home() {
                 {currency} {balance}
               </span>
             </p>
+            <p className="text-gray-700">
+              <span className="font-semibold">Total Contribution:</span>
+              <span className="ml-2 bg-white px-3 py-1 rounded-md text-blue-600 font-mono">
+                {currency} {balance}
+              </span>
+            </p>
           </>
         ) : (
           <p className="text-gray-700">Please connect to a wallet</p>
         )}
+      </section>
+      <section className="bg-gray-100 p-4 rounded-lg shadow-md mt-8 w-full max-w-2xl">
+        <div className="flex mb-4">
+          <button
+            className={`flex-1 py-2 px-4 text-center ${
+              activeTab === 'contribute'
+                ? 'bg-indigo-600 text-white'
+                : 'bg-gray-200 text-gray-700'
+            } rounded-tl-lg rounded-tr-lg`}
+            onClick={() => setActiveTab('contribute')}
+          >
+            Make a Contribution
+          </button>
+          <button
+            className={`flex-1 py-2 px-4 text-center ${
+              activeTab === 'claim'
+                ? 'bg-indigo-600 text-white'
+                : 'bg-gray-200 text-gray-700'
+            } rounded-tl-lg rounded-tr-lg`}
+            onClick={() => setActiveTab('claim')}
+          >
+            Make a Claim
+          </button>
+          <button
+            className={`flex-1 py-2 px-4 text-center ${
+              activeTab === 'listClaims'
+                ? 'bg-indigo-600 text-white'
+                : 'bg-gray-200 text-gray-700'
+            } rounded-tl-lg rounded-tr-lg`}
+            onClick={() => setActiveTab('listClaims')}
+          >
+            List Claims
+          </button>
+        </div>
+        <div className="bg-white p-4 rounded-b-lg text-black">
+          {activeTab === 'contribute' ? (
+            <div>
+              <ContributeForm />
+            </div>
+          ) : activeTab === 'claim' ? (
+            <div>
+              <MakeAClaim />
+            </div>
+          ) : (
+            <div>
+              <ListClaims />
+            </div>
+          )}
+        </div>
       </section>
     </main>
   );

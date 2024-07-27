@@ -107,4 +107,16 @@ contract Takaful {
         }
         return count;
     }
+
+    function listClaims() public view returns (Claim[] memory) {
+        Claim[] memory allClaims = new Claim[](claimCount);
+        for (uint256 i = 0; i < claimCount; i++) {
+            allClaims[i] = claims[i];
+        }
+        return allClaims;
+    }
+
+    function getTotalContributions() public view returns (uint256) {
+        return totalContributions;
+    }
 }
