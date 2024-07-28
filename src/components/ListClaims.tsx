@@ -47,12 +47,14 @@ export default function ListClaims() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="font-bold">Claimant:</p>
-                <div className="relative group">
-                  <p className="text-blue-500">{formatAddress(claim.claimant)}</p>
-                  <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    {claim.claimant}
-                  </span>
-                </div>
+                {claim.claimant && (
+                  <div className="relative group">
+                    <p className="text-blue-500">{formatAddress(claim.claimant)}</p>
+                    <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      {claim.claimant}
+                    </span>
+                  </div>
+                )}
               </div>
               <div>
                 <p className="font-bold">Amount:</p>

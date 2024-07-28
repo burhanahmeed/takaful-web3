@@ -9,7 +9,8 @@ import {
   getNetworkCurrency,
   getTotalContribution,
   getWalletBalance,
-  isAdmin as checkIsAdmin
+  isAdmin as checkIsAdmin,
+  getTotalParticipants
 } from "@/utils/wallet";
 import { useEffect, useState } from "react";
 
@@ -17,6 +18,7 @@ export default function Home() {
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [balance, setBalance] = useState('0');
   const [totalContribution, setTotalContribution] = useState('0');
+  const [totalParticipant, setTotalParticipant] = useState('0');
   const [isAdmin, setIsAdmin] = useState(false);
   const [currency, setCurrency] = useState('');
   const [activeTab, setActiveTab] = useState('contribute');
@@ -58,6 +60,9 @@ export default function Home() {
 
         const role = await checkIsAdmin();
         setIsAdmin(role);
+
+        const totalParticipantWallet = await getTotalParticipants();
+        setTotalParticipant(totalParticipantWallet);
       }
     }
     fetchBalance();
@@ -105,7 +110,7 @@ export default function Home() {
             </p>
             <p className="text-gray-700">
               <span className="font-semibold">Role:</span>
-              <span className="ml-2 bg-white px-3 py-1 rounded-md text-blue-600 font-mono">
+              <span className="ml-2 px-3 py-1 rounded-md">
                 {isAdmin? 'Admin' : 'User'}
               </span>
             </p>
@@ -113,6 +118,12 @@ export default function Home() {
               <span className="font-semibold">Total Contribution:</span>
               <span className="ml-2 bg-white px-3 py-1 rounded-md text-blue-600 font-mono">
                 {currency} {totalContribution}
+              </span>
+            </p>
+            <p className="text-gray-700">
+              <span className="font-semibold">Total Participants:</span>
+              <span className="ml-2 px-3 py-1 rounded-md">
+                {totalParticipant} Participants
               </span>
             </p>
           </>

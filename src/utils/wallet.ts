@@ -98,3 +98,10 @@ export const isAdmin = async () => {
   const currentAddress = await signer.getAddress();
   return adminAddress.toLowerCase() === currentAddress.toLowerCase();
 };
+
+export const getTotalParticipants = async () => {
+  const { signer } = await connectWallet();
+  const contract = new ethers.Contract(contractAddress, ContractABI, signer);
+  const totalParticipants = await contract.getTotalParticipants();
+  return totalParticipants.toNumber();
+};
