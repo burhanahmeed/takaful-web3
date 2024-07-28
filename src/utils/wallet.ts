@@ -1,4 +1,7 @@
 import * as ethers from 'ethers';
+import ContractABI from '../../contracts/contactABI.json'
+
+export const contractAddress = '0x39d03e32f4c45959a4f2d7963c388e22f4255a08';
 
 export async function connectWallet() {
   if (typeof window.ethereum !== 'undefined') {
@@ -49,7 +52,7 @@ export async function getWalletBalance(address: string) {
 export async function getNetworkCurrency() {
   const provider = new ethers.providers.Web3Provider(window.ethereum);
   const network = await provider.getNetwork();
-  
+
   switch(network.chainId) {
     case 1:
       return 'ETH'; // Ethereum Mainnet
@@ -58,7 +61,40 @@ export async function getNetworkCurrency() {
     case 56:
       return 'BNB'; // Binance Smart Chain
     // Add more cases for other networks as needed
+    case 11155111:
+      return 'SepoliaETH';
     default:
       return 'Unknown';
   }
 }
+
+export const getTotalContribution = async () => {
+  const { signer } = await connectWallet();
+  const contract = new ethers.Contract(contractAddress, ContractABI, signer);
+  const totalContribution = await contract.getTotalContributions();
+  return ethers.utils.formatEther(totalContribution);
+};
+
+export const listClaims = async () => {
+  const { signer } = await connectWallet();
+  const contract = new ethers.Contract(contractAddress, ContractABI, signer);
+  const claims = await contract.listClaims();
+  return claims.map((claim: any) => ({
+    claimant: claim.claimant,
+    amount: ethers.utils.formatEther(claim.amount),
+    reason: claim.reason,
+    votesFor: claim.votesFor.toNumber(),
+    votesAgainst: claim.votesAgainst.toNumber(),
+    decided: claim.decided,
+    approved: claim.approved,
+    votingDeadline: new Date(claim.votingDeadline.toNumber() * 1000)
+  }));
+};
+
+export const isAdmin = async () => {
+  const { signer } = await connectWallet();
+  const contract = new ethers.Contract(contractAddress, ContractABI, signer);
+  const adminAddress = await contract.admin();
+  const currentAddress = await signer.getAddress();
+  return adminAddress.toLowerCase() === currentAddress.toLowerCase();
+};

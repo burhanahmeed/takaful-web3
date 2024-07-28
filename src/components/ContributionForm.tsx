@@ -1,12 +1,39 @@
+import { useState } from "react";
+import { ethers } from "ethers";
+import contactAbi from '../../contracts/contactABI.json'
+import { contractAddress } from '@/utils/wallet'
+
 export default function ContributeForm() {
+  const [amount, setAmount] = useState(0);
+  const handleSubmit = async (event: any) => {
+    event.preventDefault();
+    console.log(amount);
+
+    try {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      const contract = new ethers.Contract(contractAddress, contactAbi, signer);
+
+      const tx = await contract.contribute({ value: ethers.utils.parseEther(String(amount)) });
+      await tx.wait();
+
+      setAmount(0);
+      alert('Contribution submitted successfully!');
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
   return (
-    <form className="space-y-4">
+    <form className="space-y-4" onSubmit={handleSubmit}>
       <div>
         <label htmlFor="ethAmount" className="block text-sm font-medium text-gray-700">
           ETH Amount
         </label>
         <div className="mt-1 relative rounded-md shadow-sm">
           <input
+            onChange={(event) => setAmount(Number(event.target.value))}
+            value={amount}
             type="number"
             name="ethAmount"
             id="ethAmount"

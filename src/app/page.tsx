@@ -3,12 +3,14 @@
 import ContributeForm from "@/components/ContributionForm";
 import ListClaims from "@/components/ListClaims";
 import MakeAClaim from "@/components/MakeAClaim";
-import { checkWalletConnection, connectWallet, getNetworkCurrency, getWalletBalance } from "@/utils/wallet";
+import { checkWalletConnection, connectWallet, getNetworkCurrency, getTotalContribution, getWalletBalance, isAdmin as checkIsAdmin } from "@/utils/wallet";
 import { useEffect, useState } from "react";
 
 export default function Home() {
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [balance, setBalance] = useState('0');
+  const [totalContribution, setTotalContribution] = useState('0');
+  const [isAdmin, setIsAdmin] = useState(false);
   const [currency, setCurrency] = useState('');
   const [activeTab, setActiveTab] = useState('contribute');
 
@@ -43,6 +45,12 @@ export default function Home() {
         const networkCurrency = await getNetworkCurrency();
         setBalance(balanceInEther);
         setCurrency(networkCurrency);
+
+        const totalContributionWallet = await getTotalContribution();
+        setTotalContribution(totalContributionWallet);
+
+        const role = await checkIsAdmin();
+        setIsAdmin(role);
       }
     }
     fetchBalance();
@@ -89,9 +97,15 @@ export default function Home() {
               </span>
             </p>
             <p className="text-gray-700">
+              <span className="font-semibold">Role:</span>
+              <span className="ml-2 bg-white px-3 py-1 rounded-md text-blue-600 font-mono">
+                {isAdmin? 'Admin' : 'User'}
+              </span>
+            </p>
+            <p className="text-gray-700">
               <span className="font-semibold">Total Contribution:</span>
               <span className="ml-2 bg-white px-3 py-1 rounded-md text-blue-600 font-mono">
-                {currency} {balance}
+                {currency} {totalContribution}
               </span>
             </p>
           </>

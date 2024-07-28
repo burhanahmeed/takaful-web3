@@ -1,17 +1,60 @@
+import { useState } from "react";
+import contactAbi from '../../contracts/contactABI.json'
+import { contractAddress } from '@/utils/wallet'
+import { ethers } from "ethers";
+
 export default function MakeAClaim() {
+  const [form, setForm] = useState({
+    amount: '',
+    reason: '',
+  });
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    console.log(form);
+    try {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      await provider.send('eth_requestAccounts', []); // Request account access
+      const signer = provider.getSigner();
+      const contract = new ethers.Contract(contractAddress, contactAbi, signer);
+
+      const amountInEther = ethers.utils.parseEther(form.amount); // Convert amount to Wei if needed
+
+      const tx = await contract.submitClaim(amountInEther, form.reason);
+      await tx.wait(); // Wait for transaction to be mined
+
+      alert('Claim submitted successfully!');
+    } catch (error) {
+      console.error('Error submitting claim:', error);
+      alert('Failed to submit claim.');
+    }
+  };
+
   return (
-    <form id="claimForm">
+    <form id="claimForm" onSubmit={handleSubmit}>
     <div className="mb-4">
         <label className="block text-sm font-medium text-gray-700">
           Claim Amount (in MANTA)
         </label>
-        <input type="number" id="amount" name="amount" min="0.01" step="0.01" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required />
+        <input value={form.amount} onChange={
+          (e) =>
+            setForm({
+             ...form,
+              amount: e.target.value,
+            })
+        } type="number" id="amount" name="amount" step="0.01" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required />
     </div>
     <div className="mb-4">
         <label className="block text-sm font-medium text-gray-700">
           Reason for Claim
         </label>
-        <textarea id="reason" name="reason" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required></textarea>
+        <textarea value={form.reason} onChange={
+          (e) =>
+            setForm({
+             ...form,
+              reason: e.target.value,
+            })
+        } id="reason" name="reason" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required></textarea>
     </div>
     <div className="flex items-center justify-between">
       <button
