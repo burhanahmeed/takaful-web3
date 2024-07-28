@@ -3,7 +3,14 @@
 import ContributeForm from "@/components/ContributionForm";
 import ListClaims from "@/components/ListClaims";
 import MakeAClaim from "@/components/MakeAClaim";
-import { checkWalletConnection, connectWallet, getNetworkCurrency, getTotalContribution, getWalletBalance, isAdmin as checkIsAdmin } from "@/utils/wallet";
+import {
+  checkWalletConnection,
+  connectWallet,
+  getNetworkCurrency,
+  getTotalContribution,
+  getWalletBalance,
+  isAdmin as checkIsAdmin
+} from "@/utils/wallet";
 import { useEffect, useState } from "react";
 
 export default function Home() {
