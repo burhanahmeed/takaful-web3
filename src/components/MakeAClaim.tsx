@@ -1,9 +1,22 @@
-import { useState } from "react";
-import { makeAClaim } from '@/utils/wallet'
+import { useEffect, useState } from "react";
+import { connectWallet, makeAClaim } from '@/utils/wallet'
 import { groth16 } from "snarkjs";
 import { ethers } from "ethers";
 
 export default function MakeAClaim() {
+  const [address, setAddress] = useState('');
+
+  useEffect(() => {
+    const getAddress = async () => {
+      const {address} = await connectWallet();
+      if (address) {
+        setAddress(address);
+      }
+    }
+
+    getAddress();
+  }, []);
+
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     amount: '',
@@ -25,13 +38,15 @@ export default function MakeAClaim() {
     setLoading(true);
 
     try {
+      const exponent = 1000_000_000
       const reasonHash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(form.reason));
       const inputs = {
-          amount: ethers.utils.parseEther(form.amount),
+          claimant: address,
+          amount: Number(form.amount) * exponent,
           reason: reasonHash,
           reasonScore: form.reasonScore, // Example score, in practice should be calculated based on reason
-          minAmount: 0.0001,
-          maxAmount: 0.2
+          minAmount: 0.0001 * exponent,
+          maxAmount: 0.2 * exponent
       };
 
       const { proof, publicSignals } = await generateProof(inputs);
@@ -43,6 +58,8 @@ export default function MakeAClaim() {
           c: proof.pi_c,
           input: publicSignals
       };
+      console.log(proofData);
+      
       await makeAClaim(inputs.amount, reasonHash, proofData);
 
       setLoading(false);

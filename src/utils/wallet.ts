@@ -1,7 +1,10 @@
 import * as ethers from 'ethers';
-import ContractABI from '../../contracts/contactABI.json'
+// import ContractABI from '../../contracts/contactABI.json'
+import takafulAbi from '../../artifacts/contracts/takaful.sol/Takaful.json'
 
-export const contractAddress = '0xFD98d4615f428F51838742232586d10110138c7E';
+const ContractABI = takafulAbi.abi;
+
+export const contractAddress = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512';
 
 const haqqNetwork = {
   chainId: 54211,  // HAQQ chain ID
@@ -9,7 +12,26 @@ const haqqNetwork = {
   rpc: 'https://rpc.eth.testedge2.haqq.network'  // HAQQ RPC URL
 };
 
-export async function connectWallet() {
+export const connectWallet = async () => {
+  if (typeof window.ethereum !== 'undefined') {
+    try {
+      const provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545/');
+      const wallet = new ethers.Wallet('0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80', provider);
+      const address = wallet.address
+      const balance = wallet.getBalance();
+      const signer = provider.getSigner()
+
+      return { address, balance, provider, signer };
+    } catch (error) {
+      console.error('Error connecting to wallet:', error);
+      throw new Error('No crypto wallet found. Please install it.');
+    }
+  } else {
+    throw new Error('No crypto wallet found. Please install it.');
+  }
+};
+
+export async function connectWalletMM() {
   if (typeof window.ethereum !== 'undefined') {
     try {
       // Request account access
@@ -65,6 +87,10 @@ export async function getWalletBalance(address: string) {
   }
 }
 
+export function getContractDetail(signer: any) {
+  return new ethers.Contract(contractAddress, ContractABI, signer);
+}
+
 export async function getNetworkCurrency() {
   const provider = new ethers.providers.Web3Provider(window.ethereum);
   const network = await provider.getNetwork();
@@ -87,16 +113,23 @@ export async function getNetworkCurrency() {
   }
 }
 
+export const contribute =  async (amount: string) => {
+  const { signer } = await connectWallet();
+  const contract = getContractDetail(signer);
+  const tx = await contract.contribute({ value: ethers.utils.parseEther(amount) });
+  await tx.wait();
+};
+
 export const getTotalContribution = async () => {
   const { signer } = await connectWallet();
-  const contract = new ethers.Contract(contractAddress, ContractABI, signer);
+  const contract = getContractDetail(signer);
   const totalContribution = await contract.getTotalContributions();
   return ethers.utils.formatEther(totalContribution);
 };
 
 export const listClaims = async () => {
   const { signer } = await connectWallet();
-  const contract = new ethers.Contract(contractAddress, ContractABI, signer);
+  const contract = getContractDetail(signer);
   const claims = await contract.listClaims();
   return claims.map((claim: any) => ({
     claimant: claim.claimant,
@@ -112,7 +145,7 @@ export const listClaims = async () => {
 
 export const isAdmin = async () => {
   const { signer } = await connectWallet();
-  const contract = new ethers.Contract(contractAddress, ContractABI, signer);
+  const contract = getContractDetail(signer);
   const adminAddress = await contract.admin();
   const currentAddress = await signer.getAddress();
   return adminAddress.toLowerCase() === currentAddress.toLowerCase();
@@ -120,14 +153,14 @@ export const isAdmin = async () => {
 
 export const getTotalParticipants = async () => {
   const { signer } = await connectWallet();
-  const contract = new ethers.Contract(contractAddress, ContractABI, signer);
+  const contract = getContractDetail(signer);
   const totalParticipants = await contract.getTotalParticipants();
   return totalParticipants.toNumber();
 };
 
 export const makeAClaim = async (amount: any, reasonHash: string, proofData: any) => {
   const { signer } = await connectWallet();
-  const contract = new ethers.Contract(contractAddress, ContractABI, signer);
+  const contract = getContractDetail(signer);
 
   const tx = await contract.submitClaim(amount, reasonHash, proofData.a, proofData.b, proofData.c, proofData.input);
   await tx.wait(); // Wait for transaction to be mined
@@ -135,7 +168,7 @@ export const makeAClaim = async (amount: any, reasonHash: string, proofData: any
 
 export const voteOnClaim = async (claimId: number, approve: boolean) => {
   const { signer } = await connectWallet();
-  const contract = new ethers.Contract(contractAddress, ContractABI, signer);
+  const contract = getContractDetail(signer);
   const tx = await contract.voteOnClaim(claimId, approve);
   await tx.wait();
   return tx;
@@ -143,7 +176,7 @@ export const voteOnClaim = async (claimId: number, approve: boolean) => {
 
 export const decideClaim = async (claimId: number) => {
   const { signer } = await connectWallet();
-  const contract = new ethers.Contract(contractAddress, ContractABI, signer);
+  const contract = getContractDetail(signer);
   const tx = await contract.decideClaim(claimId);
   await tx.wait();
   return tx;
@@ -151,7 +184,7 @@ export const decideClaim = async (claimId: number) => {
 
 export const distribute = async () => {
   const { signer } = await connectWallet();
-  const contract = new ethers.Contract(contractAddress, ContractABI, signer);
+  const contract = getContractDetail(signer);
   const tx = await contract.distributeSurplus();
   await tx.wait();
   return tx;
