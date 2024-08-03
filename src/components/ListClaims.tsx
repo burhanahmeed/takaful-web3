@@ -82,7 +82,7 @@ export default function ListClaims() {
               </div>
               <div>
                 <p className="font-bold">Voting Deadline:</p>
-                <p>{new Date(claim.votingDeadline * 1000).toLocaleString()}</p>
+                <p>{new Date(claim.votingDeadline).toLocaleString()}</p>
               </div>
             </div>
             <div className="mt-4">

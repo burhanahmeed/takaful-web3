@@ -5,9 +5,12 @@ import { contractAddress } from '@/utils/wallet'
 
 export default function ContributeForm() {
   const [amount, setAmount] = useState(0);
+  const [loading, setLoading] = useState(false);
+
   const handleSubmit = async (event: any) => {
     event.preventDefault();
     console.log(amount);
+    setLoading(true);
 
     try {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -18,8 +21,10 @@ export default function ContributeForm() {
       await tx.wait();
 
       setAmount(0);
+      setLoading(true);
       alert('Contribution submitted successfully!');
     } catch (error) {
+      setLoading(true);
       alert(error.message);
     }
   };
@@ -52,7 +57,7 @@ export default function ContributeForm() {
         type="submit"
         className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
       >
-        Contribute
+        {loading ? '. . . .' : 'Contribute'}
       </button>
     </form>
   );

@@ -1,0 +1,11 @@
+1,1,0,main.isValid
+2,-1,0,main.claimant
+3,2,0,main.amount
+4,-1,0,main.reason
+5,3,0,main.reasonScore
+6,4,0,main.minAmount
+7,5,0,main.maxAmount
+8,-1,0,main.amountLowerBound
+9,-1,0,main.amountUpperBound
+10,6,0,main.amountInRange
+11,-1,0,main.scoreCheck

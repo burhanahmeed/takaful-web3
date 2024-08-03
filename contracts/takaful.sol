@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "./ClaimValidityVerifier.sol";
+
 contract Takaful {
     struct Claim {
         address claimant;
@@ -19,7 +21,9 @@ contract Takaful {
     mapping(uint256 => Claim) public claims;
     uint256 public claimCount;
     uint256 public votingPeriod = 2 days;
-    
+
+    ClaimValidityVerifier public claimVerifier;
+
     modifier onlyAdmin() {
         require(msg.sender == admin, "Only admin can call this function");
         _;
@@ -30,8 +34,9 @@ contract Takaful {
         _;
     }
 
-    constructor() {
+    constructor(address _claimVerifier) {
         admin = msg.sender;
+        claimVerifier = ClaimValidityVerifier(_claimVerifier);
     }
 
     function contribute() public payable {
@@ -40,9 +45,17 @@ contract Takaful {
         totalContributions += msg.value;
     }
 
-    function submitClaim(uint256 amount, string memory reason) public onlyParticipants {
+    function submitClaim(
+        uint256 amount, 
+        string memory reason, 
+        uint256[2] memory a, 
+        uint256[2][2] memory b, 
+        uint256[2] memory c, 
+        uint256[5] memory input
+    ) public onlyParticipants {
         require(amount > 0 && amount <= totalContributions, "Invalid claim amount");
-        
+        require(claimVerifier.verifyProof(a, b, c, input), "Invalid proof");
+
         claims[claimCount] = Claim({
             claimant: msg.sender,
             amount: amount,

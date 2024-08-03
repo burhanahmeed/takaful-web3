@@ -1,5 +1,10 @@
 'use client';
 
+// TODO: 
+// 1. Add distribute surplus function
+// 2. Add decide claim
+// 3. Add approve claim
+
 import ContributeForm from "@/components/ContributionForm";
 import ListClaims from "@/components/ListClaims";
 import MakeAClaim from "@/components/MakeAClaim";
@@ -30,6 +35,22 @@ export default function Home() {
       setWalletAddress(address);
     } catch (error) {
       // Handle any errors
+      console.log('Failed to connect wallet:', error);
+    }
+  };
+
+  const handleMint = async () => {
+    try {
+      // TODO: Add minting logic here
+      const response = await fetch('/api/zksbt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ operation: 'sign', address: walletAddress }),
+      });
+      response.json();
+      console.log(response.json());
+    } catch (error) {
+      console.error('Failed to mint:', error);
     }
   };
 
@@ -77,13 +98,13 @@ export default function Home() {
         </button>
         ) : (
           <button onClick={handleConnectWallet} className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Connect wallet
+          Connect wallet to HAQQ
         </button>
         )}
         <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
           <a
             className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
+            href="https://vercel.com"
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -105,7 +126,7 @@ export default function Home() {
             <p className="text-gray-700">
               <span className="font-semibold">Wallet Balance:</span>
               <span className="ml-2 bg-white px-3 py-1 rounded-md text-blue-600 font-mono">
-                {currency} {balance}
+                {balance} {currency}
               </span>
             </p>
             <p className="text-gray-700">
@@ -114,10 +135,19 @@ export default function Home() {
                 {isAdmin? 'Admin' : 'User'}
               </span>
             </p>
-            <p className="text-gray-700">
+          </>
+        ) : (
+          <p className="text-gray-700">Please connect to a wallet</p>
+        )}
+      </section>
+
+      {walletAddress && (
+        <section className="bg-gray-100 p-4 rounded-lg shadow-md mt-8">
+          <h2 className="text-lg font-bold mb-2 text-gray-800">Current statics</h2>
+          <p className="text-gray-700">
               <span className="font-semibold">Total Contribution:</span>
               <span className="ml-2 bg-white px-3 py-1 rounded-md text-blue-600 font-mono">
-                {currency} {totalContribution}
+                {(totalContribution)} {currency}
               </span>
             </p>
             <p className="text-gray-700">
@@ -126,11 +156,9 @@ export default function Home() {
                 {totalParticipant} Participants
               </span>
             </p>
-          </>
-        ) : (
-          <p className="text-gray-700">Please connect to a wallet</p>
-        )}
-      </section>
+        </section>
+      )}
+
       <section className="bg-gray-100 p-4 rounded-lg shadow-md mt-8 w-full max-w-2xl">
         <div className="flex mb-4">
           <button

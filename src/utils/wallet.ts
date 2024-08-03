@@ -3,6 +3,12 @@ import ContractABI from '../../contracts/contactABI.json'
 
 export const contractAddress = '0x39d03e32f4c45959a4f2d7963c388e22f4255a08';
 
+const haqqNetwork = {
+  chainId: 54211,  // HAQQ chain ID
+  name: 'HAQQ',
+  rpc: 'https://rpc.eth.testedge2.haqq.network'  // HAQQ RPC URL
+};
+
 export async function connectWallet() {
   if (typeof window.ethereum !== 'undefined') {
     try {
@@ -11,7 +17,17 @@ export async function connectWallet() {
       
       // Create a new Web3Provider
       const provider = new ethers.providers.Web3Provider(window.ethereum);
-      
+
+      // Check if we're on the HAQQ network
+      const network = await provider.getNetwork();
+      if (network.chainId !== haqqNetwork.chainId) {
+        // If not, request a network switch
+        // await window.ethereum.request({
+        //   method: 'wallet_switchEthereumChain',
+        //   params: [{ chainId: ethers.utils.hexValue(haqqNetwork.chainId) }],
+        // });
+      }
+
       // Get the signer
       const signer = provider.getSigner();
       
@@ -63,6 +79,9 @@ export async function getNetworkCurrency() {
     // Add more cases for other networks as needed
     case 11155111:
       return 'SepoliaETH';
+    case 11235:
+    case 54211:
+      return 'ISLM';
     default:
       return 'Unknown';
   }

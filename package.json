@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@zksbt/jssdk": "^0.8.10",
+    "axios": "^1.7.2",
     "ethers": "^5.7.2",
     "next": "14.2.5",
     "react": "^18",

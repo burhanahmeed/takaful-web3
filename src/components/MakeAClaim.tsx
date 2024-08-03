@@ -7,6 +7,7 @@ export default function MakeAClaim() {
   const [form, setForm] = useState({
     amount: '',
     reason: '',
+    reasonScore: 0,
   });
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -55,6 +56,18 @@ export default function MakeAClaim() {
               reason: e.target.value,
             })
         } id="reason" name="reason" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required></textarea>
+    </div>
+    <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700">
+          Reason Score (For ZK simulation only)
+        </label>
+        <input value={form.reasonScore} onChange={
+          (e) =>
+            setForm({
+             ...form,
+             reasonScore: Number(e.target.value),
+            })
+        } type="number" id="reasonScore" name="reasonScore" step="1" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required />
     </div>
     <div className="flex items-center justify-between">
       <button
