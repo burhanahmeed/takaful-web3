@@ -14,8 +14,8 @@ export default function MakeAClaim() {
   const generateProof = async (inputs: any) => {
     const { proof, publicSignals } = await groth16.fullProve(
       inputs,
-      '../../circuits/claimValidity_js/claimValidity.wasm',
-      '../../circuits/claimValidity_final.zkey'
+      'claimValidity.wasm',
+      'claimValidity_final.zkey'
     );
     return { proof, publicSignals };
   };

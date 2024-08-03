@@ -8,6 +8,7 @@
 import ContributeForm from "@/components/ContributionForm";
 import ListClaims from "@/components/ListClaims";
 import MakeAClaim from "@/components/MakeAClaim";
+import { formatAddress } from "@/utils/string";
 import {
   checkWalletConnection,
   connectWallet,
@@ -87,8 +88,8 @@ export default function Home() {
   }, [walletAddress]);
 
   return (
-    <main className="flex min-h-screen flex-col items-center p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
+    <main className="flex min-h-screen flex-col items-center md:p-24">
+      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex mt-24 md:mt-0">
         {walletAddress ? (
           <button className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
           Connected to a wallet
@@ -114,18 +115,21 @@ export default function Home() {
         <h2 className="text-xl font-bold mb-2 text-gray-800">Wallet Information</h2>
         {walletAddress ? (
           <>
-            <p className="text-gray-700">
+            <div className="text-gray-700">
               <span className="font-semibold">Wallet Address:</span>
-              <span className="ml-2 bg-white px-3 py-1 rounded-md text-blue-600 font-mono">
-                {walletAddress}
-              </span>
-            </p>
-            <p className="text-gray-700">
+              <div className="relative group ml-2 bg-white px-3 py-1 rounded-md text-blue-600 font-mono">
+                <p className="text-blue-500">{formatAddress(walletAddress)}</p>
+                <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  {walletAddress}
+                </span>
+              </div>
+            </div>
+            <div className="text-gray-700">
               <span className="font-semibold">Wallet Balance:</span>
-              <span className="ml-2 bg-white px-3 py-1 rounded-md text-blue-600 font-mono">
+              <p className="ml-2 bg-white px-3 py-1 rounded-md text-blue-600 font-mono">
                 {balance} {currency}
-              </span>
-            </p>
+              </p>
+            </div>
             <p className="text-gray-700">
               <span className="font-semibold">Role:</span>
               <span className="ml-2 px-3 py-1 rounded-md">
@@ -159,7 +163,7 @@ export default function Home() {
         </section>
       )}
 
-      <section className="bg-gray-100 p-4 rounded-lg shadow-md mt-8 w-full max-w-2xl">
+      <section className="bg-gray-100 p-4 rounded-lg shadow-md mt-8 w-full max-w-2xl mb-72">
         <div className="flex mb-4">
           <button
             className={`flex-1 py-2 px-4 text-center ${
