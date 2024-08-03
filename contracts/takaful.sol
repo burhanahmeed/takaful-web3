@@ -82,7 +82,7 @@ contract Takaful {
         }
 
         // Automatically decide the claim if all participants have voted
-        if (claim.votesFor + claim.votesAgainst == getTotalParticipants()) {
+        if (claim.votesFor + claim.votesAgainst == getTotalParticipants() - 1) {
             decideClaim(claimId);
         }
     }
@@ -97,6 +97,8 @@ contract Takaful {
             claim.approved = true;
             payable(claim.claimant).transfer(claim.amount);
             totalContributions -= claim.amount;
+        } else {
+            revert("Claim not approved: insufficient votes");
         }
     }
 

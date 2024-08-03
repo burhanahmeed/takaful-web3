@@ -1,31 +1,54 @@
 import { useState } from "react";
-import contactAbi from '../../contracts/contactABI.json'
-import { contractAddress } from '@/utils/wallet'
+import { makeAClaim } from '@/utils/wallet'
+import { groth16 } from "snarkjs";
 import { ethers } from "ethers";
 
 export default function MakeAClaim() {
+  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     amount: '',
     reason: '',
     reasonScore: 0,
   });
 
+  const generateProof = async (inputs: any) => {
+    const { proof, publicSignals } = await groth16.fullProve(
+      inputs,
+      '../../circuits/claimValidity_js/claimValidity.wasm',
+      '../../circuits/claimValidity_final.zkey'
+    );
+    return { proof, publicSignals };
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log(form);
+    setLoading(true);
+
     try {
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      await provider.send('eth_requestAccounts', []); // Request account access
-      const signer = provider.getSigner();
-      const contract = new ethers.Contract(contractAddress, contactAbi, signer);
+      const reasonHash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(form.reason));
+      const inputs = {
+          amount: ethers.utils.parseEther(form.amount),
+          reason: reasonHash,
+          reasonScore: form.reasonScore, // Example score, in practice should be calculated based on reason
+          minAmount: 0.0001,
+          maxAmount: 0.2
+      };
 
-      const amountInEther = ethers.utils.parseEther(form.amount); // Convert amount to Wei if needed
+      const { proof, publicSignals } = await generateProof(inputs);
 
-      const tx = await contract.submitClaim(amountInEther, form.reason);
-      await tx.wait(); // Wait for transaction to be mined
+      // Convert proof to the format required by the smart contract
+      const proofData = {
+          a: proof.pi_a,
+          b: proof.pi_b,
+          c: proof.pi_c,
+          input: publicSignals
+      };
+      await makeAClaim(inputs.amount, reasonHash, proofData);
 
+      setLoading(false);
       alert('Claim submitted successfully!');
     } catch (error) {
+      setLoading(false);
       console.error('Error submitting claim:', error);
       alert('Failed to submit claim.');
     }
@@ -74,7 +97,7 @@ export default function MakeAClaim() {
         type="submit"
         className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
       >
-        Submit Claim
+        {loading ? '. . . ' : 'Submit Claim'}
       </button>
     </div>
 </form>

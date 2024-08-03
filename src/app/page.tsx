@@ -15,7 +15,8 @@ import {
   getTotalContribution,
   getWalletBalance,
   isAdmin as checkIsAdmin,
-  getTotalParticipants
+  getTotalParticipants,
+  distribute
 } from "@/utils/wallet";
 import { useEffect, useState } from "react";
 
@@ -27,6 +28,7 @@ export default function Home() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [currency, setCurrency] = useState('');
   const [activeTab, setActiveTab] = useState('contribute');
+  const [distributeBtnLoading, setDistributeBtnLoading] = useState(false);
 
   const handleConnectWallet = async () => {
     try {
@@ -39,18 +41,13 @@ export default function Home() {
     }
   };
 
-  const handleMint = async () => {
+  const handleDistribution = async () => {
+    // TODO: Implement the distribution logic
     try {
-      // TODO: Add minting logic here
-      const response = await fetch('/api/zksbt', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ operation: 'sign', address: walletAddress }),
-      });
-      response.json();
-      console.log(response.json());
+      await distribute();
+      alert('Distribution successful!');
     } catch (error) {
-      console.error('Failed to mint:', error);
+      alert(error?.error?.message);
     }
   };
 
@@ -155,6 +152,9 @@ export default function Home() {
               <span className="ml-2 px-3 py-1 rounded-md">
                 {totalParticipant} Participants
               </span>
+            </p>
+            <p>
+              <button onClick={() => handleDistribution()} className="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">{distributeBtnLoading ? '. . . ' : 'Distribute Surplus'}</button>
             </p>
         </section>
       )}

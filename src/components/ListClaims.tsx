@@ -1,14 +1,20 @@
 import { useEffect, useState } from "react";
-import { listClaims } from "@/utils/wallet";
-import { ethers } from "ethers";
+import { decideClaim, isAdmin as isAdminFunc, listClaims, voteOnClaim } from "@/utils/wallet";
 import { formatAddress } from "@/utils/string";
 
 export default function ListClaims() {
-  const [claims, setClaims] = useState([1,2,3,4,5]);
+  const [claims, setClaims] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [account, setAccount] = useState(null);
+
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
+    const checkAdmin = async () => {
+      const isAdminVar = await isAdminFunc();
+      setIsAdmin(isAdminVar);
+    };
+
+    checkAdmin();
     loadClaims();
   }, []);
 
@@ -26,12 +32,39 @@ export default function ListClaims() {
     }
   };
 
-  const voteOnClaim = async (claimId: any, approve: any) => {
+  const handleVote = async (claimId: any, approve: any) => {
     try {
-     
+      setLoading(true);
+      await voteOnClaim(claimId, approve);
+      await loadClaims(); // Reload claims to reflect the new vote
+      alert('Vote submitted successfully.');
     } catch (error) {
       console.error('Error voting on claim:', error);
-      alert('Failed to submit vote.');
+      if (error.code === 'UNPREDICTABLE_GAS_LIMIT' && error.error && error.error.message) {
+        alert(`Failed to submit vote: ${error.error.message}`);
+      } else {
+        alert(`Failed to submit vote: ${error?.error?.message}`);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deceideClaimFn = async (claimId: any) => {
+    try {
+      setLoading(true);
+      await decideClaim(claimId);
+      await loadClaims(); // Reload claims to reflect the decision
+      alert('Claim decided successfully.');
+    } catch (error) {
+      console.error('Error deciding claim:', error);
+      if (error.code === 'UNPREDICTABLE_GAS_LIMIT' && error.error && error.error.message) {
+        alert(`Failed to submit vote: ${error.error.message}`);
+      } else {
+        alert(`Failed to submit vote: ${error?.error?.message}`);
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -86,8 +119,15 @@ export default function ListClaims() {
               </div>
             </div>
             <div className="mt-4">
-              <button onClick={() => voteOnClaim(index, true)} className="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">Approve</button>
-              <button onClick={() => voteOnClaim(index, false)} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded ml-4">Reject</button>
+              {!claim.decided && (
+                <>
+                  <button onClick={() => handleVote(index, true)} className="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">Approve</button>
+                  <button onClick={() => handleVote(index, false)} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded ml-4">Reject</button>
+                </>
+              )}
+              {isAdmin && !claim.decided && (
+                <button onClick={() => deceideClaimFn(index)} className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded ml-4">Deciede Claim</button>
+              )}
             </div>
           </div>
           ))}

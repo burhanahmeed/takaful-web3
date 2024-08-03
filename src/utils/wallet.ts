@@ -124,3 +124,35 @@ export const getTotalParticipants = async () => {
   const totalParticipants = await contract.getTotalParticipants();
   return totalParticipants.toNumber();
 };
+
+export const makeAClaim = async (amount: any, reasonHash: string, proofData: any) => {
+  const { signer } = await connectWallet();
+  const contract = new ethers.Contract(contractAddress, ContractABI, signer);
+
+  const tx = await contract.submitClaim(amount, reasonHash, proofData.a, proofData.b, proofData.c, proofData.input);
+  await tx.wait(); // Wait for transaction to be mined
+}
+
+export const voteOnClaim = async (claimId: number, approve: boolean) => {
+  const { signer } = await connectWallet();
+  const contract = new ethers.Contract(contractAddress, ContractABI, signer);
+  const tx = await contract.voteOnClaim(claimId, approve);
+  await tx.wait();
+  return tx;
+};
+
+export const decideClaim = async (claimId: number) => {
+  const { signer } = await connectWallet();
+  const contract = new ethers.Contract(contractAddress, ContractABI, signer);
+  const tx = await contract.decideClaim(claimId);
+  await tx.wait();
+  return tx;
+};
+
+export const distribute = async () => {
+  const { signer } = await connectWallet();
+  const contract = new ethers.Contract(contractAddress, ContractABI, signer);
+  const tx = await contract.distributeSurplus();
+  await tx.wait();
+  return tx;
+};
