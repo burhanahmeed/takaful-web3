@@ -22,7 +22,7 @@ contract Takaful {
     uint256 public claimCount;
     uint256 public votingPeriod = 2 days;
 
-    ClaimValidityVerifier public claimVerifier;
+    Groth16Verifier public claimVerifier;
 
     modifier onlyAdmin() {
         require(msg.sender == admin, "Only admin can call this function");
@@ -36,7 +36,7 @@ contract Takaful {
 
     constructor(address _claimVerifier) {
         admin = msg.sender;
-        claimVerifier = ClaimValidityVerifier(_claimVerifier);
+        claimVerifier = Groth16Verifier(_claimVerifier);
     }
 
     function contribute() public payable {
@@ -51,7 +51,7 @@ contract Takaful {
         uint256[2] memory a, 
         uint256[2][2] memory b, 
         uint256[2] memory c, 
-        uint256[5] memory input
+        uint256[1] memory input
     ) public onlyParticipants {
         require(amount > 0 && amount <= totalContributions, "Invalid claim amount");
         require(claimVerifier.verifyProof(a, b, c, input), "Invalid proof");

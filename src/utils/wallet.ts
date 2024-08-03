@@ -1,7 +1,7 @@
 import * as ethers from 'ethers';
 import ContractABI from '../../contracts/contactABI.json'
 
-export const contractAddress = '0x39d03e32f4c45959a4f2d7963c388e22f4255a08';
+export const contractAddress = '0xFD98d4615f428F51838742232586d10110138c7E';
 
 const haqqNetwork = {
   chainId: 54211,  // HAQQ chain ID
