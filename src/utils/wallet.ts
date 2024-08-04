@@ -1,8 +1,8 @@
 import * as ethers from 'ethers';
-// import ContractABI from '../../contracts/contactABI.json'
-import takafulAbi from '../../artifacts/contracts/takaful.sol/Takaful.json'
+import ContractABI from '../../contracts/contactABI.json'
+// import takafulAbi from '../../artifacts/contracts/takaful.sol/Takaful.json'
 
-const ContractABI = takafulAbi.abi;
+// const ContractABI = takafulAbi.abi;
 
 export const contractAddress = '0xeb94b8d26cEcb9097C06e8262eDE92777f5E9722';
 
