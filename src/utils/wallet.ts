@@ -44,10 +44,10 @@ export async function connectWallet() {
       const network = await provider.getNetwork();
       if (network.chainId !== haqqNetwork.chainId) {
         // If not, request a network switch
-        // await window.ethereum.request({
-        //   method: 'wallet_switchEthereumChain',
-        //   params: [{ chainId: ethers.utils.hexValue(haqqNetwork.chainId) }],
-        // });
+        await window.ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: ethers.utils.hexValue(haqqNetwork.chainId) }],
+        });
       }
 
       // Get the signer
