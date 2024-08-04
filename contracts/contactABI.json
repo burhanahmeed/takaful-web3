@@ -37,26 +37,6 @@
 				"internalType": "string",
 				"name": "reason",
 				"type": "string"
-			},
-			{
-				"internalType": "uint256[2]",
-				"name": "a",
-				"type": "uint256[2]"
-			},
-			{
-				"internalType": "uint256[2][2]",
-				"name": "b",
-				"type": "uint256[2][2]"
-			},
-			{
-				"internalType": "uint256[2]",
-				"name": "c",
-				"type": "uint256[2]"
-			},
-			{
-				"internalType": "uint256[1]",
-				"name": "input",
-				"type": "uint256[1]"
 			}
 		],
 		"name": "submitClaim",
@@ -65,13 +45,7 @@
 		"type": "function"
 	},
 	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_claimVerifier",
-				"type": "address"
-			}
-		],
+		"inputs": [],
 		"stateMutability": "nonpayable",
 		"type": "constructor"
 	},
@@ -168,19 +142,6 @@
 				"internalType": "uint256",
 				"name": "votingDeadline",
 				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "claimVerifier",
-		"outputs": [
-			{
-				"internalType": "contract Groth16Verifier",
-				"name": "",
-				"type": "address"
 			}
 		],
 		"stateMutability": "view",

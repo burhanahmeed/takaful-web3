@@ -1,40 +1,60 @@
-npx hardhat node
-npx hardhat run deploy.js --network localhost
+# Takaful HAQQ Network
 
+Takaful HAQQ Network is a decentralized insurance platform built on blockchain technology, combining the principles of Takaful (Islamic cooperative insurance) with the HAQQ Network.
 
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## Features
+
+- Decentralized insurance claims and voting
+- Wallet integration for contributions and claim submissions
+- Smart contract-based policy management
+- Privacy-preserving transactions using HAQQ Network
+
+## Technologies Used
+
+- Next.js 14.2.5
+- React 18
+- Ethers.js 5.7.2
+- Solidity 0.8.0+
+- Tailwind CSS 3.4.1
+- TypeScript
 
 ## Getting Started
 
-First, run the development server:
+1. Clone the repository:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+git clone git@github.com:burhanahmeed/takaful-web3.git
+cd takaful-web3
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+npm install
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+3. Start the development server:
 
-## Learn More
+```
+npm run dev
+```
+4. Open your browser and navigate to http://localhost:3000 to view the application.
 
-To learn more about Next.js, take a look at the following resources:
+## Smart Contract Deployment
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Start a local Hardhat node:
+```
+npx hardhat node
+```
+2. Deploy the smart contract to the local node:
+```
+npx hardhat run deploy.js --network localhost
+```
+3. Copy the contract address and update the contract address in the application.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+## Contributing
+Contributions are welcome! Please open an issue or submit a pull request for any bugs or feature requests.
 
-## Deploy on Vercel
+## License
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+This project is licensed under the MIT License.

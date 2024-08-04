@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "./ClaimValidityVerifier.sol";
-
 contract Takaful {
     struct Claim {
         address claimant;
@@ -22,8 +20,6 @@ contract Takaful {
     uint256 public claimCount;
     uint256 public votingPeriod = 2 days;
 
-    Groth16Verifier public claimVerifier;
-
     modifier onlyAdmin() {
         require(msg.sender == admin, "Only admin can call this function");
         _;
@@ -34,28 +30,22 @@ contract Takaful {
         _;
     }
 
-    constructor(address _claimVerifier) {
+    constructor() {
         admin = msg.sender;
-        claimVerifier = Groth16Verifier(_claimVerifier);
     }
 
     function contribute() public payable {
         require(msg.value > 0, "Contribution must be greater than 0");
+        require(msg.value <= msg.sender.balance, "Contribution exceeds wallet balance");
         contributions[msg.sender] += msg.value;
         totalContributions += msg.value;
     }
 
     function submitClaim(
         uint256 amount, 
-        string memory reason, 
-        uint256[2] memory a, 
-        uint256[2][2] memory b, 
-        uint256[2] memory c, 
-        uint256[1] memory input
+        string memory reason
     ) public onlyParticipants {
         require(amount > 0 && amount <= totalContributions, "Invalid claim amount");
-        require(claimVerifier.verifyProof(a, b, c, input), "Invalid proof");
-
         claims[claimCount] = Claim({
             claimant: msg.sender,
             amount: amount,
@@ -102,13 +92,44 @@ contract Takaful {
         }
     }
 
+    function getAllParticipants() internal view returns (address[] memory) {
+        uint256 participantCount = 0;
+        address[] memory participants = new address[](claimCount);
+
+        for (uint256 i = 0; i < claimCount; i++) {
+            address participant = claims[i].claimant;
+            if (contributions[participant] > 0) {
+                bool isNew = true;
+                for (uint256 j = 0; j < participantCount; j++) {
+                    if (participants[j] == participant) {
+                        isNew = false;
+                        break;
+                    }
+                }
+                if (isNew) {
+                    participants[participantCount] = participant;
+                    participantCount++;
+                }
+            }
+        }
+
+        address[] memory result = new address[](participantCount);
+        for (uint256 i = 0; i < participantCount; i++) {
+            result[i] = participants[i];
+        }
+
+        return result;
+    }
+
     function distributeSurplus() public onlyAdmin {
         uint256 surplus = address(this).balance;
-        for (uint256 i = 0; i < claimCount; i++) {
-            Claim storage claim = claims[i];
-            if (!claim.approved && !claim.decided) {
-                uint256 share = (contributions[claim.claimant] * surplus) / totalContributions;
-                payable(claim.claimant).transfer(share);
+    
+        address[] memory participants = getAllParticipants();
+        for (uint256 i = 0; i < participants.length; i++) {
+            address participant = participants[i];
+            if (contributions[participant] > 0) {
+                uint256 share = (contributions[participant] * surplus) / totalContributions;
+                payable(participant).transfer(share);
             }
         }
     }

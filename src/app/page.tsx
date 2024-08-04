@@ -17,7 +17,8 @@ import {
   getWalletBalance,
   isAdmin as checkIsAdmin,
   getTotalParticipants,
-  distribute
+  distribute,
+  getContractBalance
 } from "@/utils/wallet";
 import { useEffect, useState } from "react";
 
@@ -30,6 +31,12 @@ export default function Home() {
   const [currency, setCurrency] = useState('');
   const [activeTab, setActiveTab] = useState('contribute');
   const [distributeBtnLoading, setDistributeBtnLoading] = useState(false);
+  const [contractBalance, setContractBalance] = useState('0');
+
+  const handleContractBalance = async () => {
+    const balance = await getContractBalance();
+    setContractBalance(balance);
+  };
 
   const handleConnectWallet = async () => {
     try {
@@ -44,10 +51,14 @@ export default function Home() {
 
   const handleDistribution = async () => {
     // TODO: Implement the distribution logic
+    setDistributeBtnLoading(true);
     try {
       await distribute();
       alert('Distribution successful!');
+      setDistributeBtnLoading(false);
     } catch (error) {
+      console.error('Failed to distribute:', error);
+      setDistributeBtnLoading(false);
       alert(error?.error?.message);
     }
   };
@@ -63,6 +74,8 @@ export default function Home() {
         console.error('Failed to reconnect wallet:', error);
       }
     }
+
+    handleContractBalance();
     initWallet();
   }, []);
 
@@ -145,21 +158,29 @@ export default function Home() {
       {walletAddress && (
         <section className="bg-gray-100 p-4 rounded-lg shadow-md mt-8">
           <h2 className="text-lg font-bold mb-2 text-gray-800">Current statics</h2>
-          <p className="text-gray-700">
-              <span className="font-semibold">Total Contribution:</span>
+            <p className="text-gray-700">
+              <span className="font-semibold">Contract balance:</span>
+              <span className="ml-2 bg-white px-3 py-1 rounded-md text-blue-600 font-mono">
+                {(contractBalance)} {currency}
+              </span>
+            </p>
+            <p className="text-gray-700">
+              <span className="font-semibold">Overall Contribution (All time):</span>
               <span className="ml-2 bg-white px-3 py-1 rounded-md text-blue-600 font-mono">
                 {(totalContribution)} {currency}
               </span>
             </p>
             <p className="text-gray-700">
-              <span className="font-semibold">Total Participants:</span>
+              <span className="font-semibold">Total Claimant:</span>
               <span className="ml-2 px-3 py-1 rounded-md">
-                {totalParticipant} Participants
+                {totalParticipant} Claims
               </span>
             </p>
-            <p>
-              <button onClick={() => handleDistribution()} className="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">{distributeBtnLoading ? '. . . ' : 'Distribute Surplus'}</button>
-            </p>
+            {isAdmin && (
+              <p>
+                <button onClick={() => handleDistribution()} className="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">{distributeBtnLoading ? '. . . ' : 'Distribute Surplus'}</button>
+              </p>
+            )}
         </section>
       )}
 

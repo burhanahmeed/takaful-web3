@@ -1,9 +1,15 @@
-import { useState } from "react";
-import { contribute } from '@/utils/wallet'
+import { useEffect, useState } from "react";
+import { contribute, getNetworkCurrency } from '@/utils/wallet'
 
 export default function ContributeForm() {
   const [amount, setAmount] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [currency, setCurrency] = useState('ETH');
+
+  const getCurrency = async () => {
+    const currency = await getNetworkCurrency();
+    setCurrency(currency);
+  };
 
   const handleSubmit = async (event: any) => {
     event.preventDefault();
@@ -14,19 +20,23 @@ export default function ContributeForm() {
       await contribute(String(amount));
 
       setAmount(0);
-      setLoading(true);
+      setLoading(false);
       alert('Contribution submitted successfully!');
     } catch (error) {
-      setLoading(true);
+      setLoading(false);
       alert(error.message);
     }
   };
+
+  useEffect(() => {
+    getCurrency();
+  }, []);
 
   return (
     <form className="space-y-4" onSubmit={handleSubmit}>
       <div>
         <label htmlFor="ethAmount" className="block text-sm font-medium text-gray-700">
-          ETH Amount
+          {currency} Amount
         </label>
         <div className="mt-1 relative rounded-md shadow-sm">
           <input
@@ -41,7 +51,7 @@ export default function ContributeForm() {
           />
           <div className="absolute inset-y-0 right-0 flex items-center">
             <span className="text-gray-500 sm:text-sm mr-2">
-              ETH
+              {currency}
             </span>
           </div>
         </div>

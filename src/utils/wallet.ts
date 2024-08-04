@@ -4,7 +4,7 @@ import takafulAbi from '../../artifacts/contracts/takaful.sol/Takaful.json'
 
 const ContractABI = takafulAbi.abi;
 
-export const contractAddress = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512';
+export const contractAddress = '0xeb94b8d26cEcb9097C06e8262eDE92777f5E9722';
 
 const haqqNetwork = {
   chainId: 54211,  // HAQQ chain ID
@@ -12,14 +12,14 @@ const haqqNetwork = {
   rpc: 'https://rpc.eth.testedge2.haqq.network'  // HAQQ RPC URL
 };
 
-export const connectWallet = async () => {
+export const connectWalletRpc = async () => {
   if (typeof window.ethereum !== 'undefined') {
     try {
       const provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545/');
-      const wallet = new ethers.Wallet('0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80', provider);
+      const wallet = new ethers.Wallet('', provider);
       const address = wallet.address
       const balance = wallet.getBalance();
-      const signer = provider.getSigner()
+      const signer = provider.getSigner();
 
       return { address, balance, provider, signer };
     } catch (error) {
@@ -31,7 +31,7 @@ export const connectWallet = async () => {
   }
 };
 
-export async function connectWalletMM() {
+export async function connectWallet() {
   if (typeof window.ethereum !== 'undefined') {
     try {
       // Request account access
@@ -91,6 +91,16 @@ export function getContractDetail(signer: any) {
   return new ethers.Contract(contractAddress, ContractABI, signer);
 }
 
+export async function getContractBalance() {
+  if (typeof window.ethereum !== 'undefined') {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const balance = await provider.getBalance(contractAddress);
+    return ethers.utils.formatEther(balance);
+  } else {
+    throw new Error('No Ethereum provider found');
+  }
+}
+
 export async function getNetworkCurrency() {
   const provider = new ethers.providers.Web3Provider(window.ethereum);
   const network = await provider.getNetwork();
@@ -117,7 +127,7 @@ export const contribute =  async (amount: string) => {
   const { signer } = await connectWallet();
   const contract = getContractDetail(signer);
   const tx = await contract.contribute({ value: ethers.utils.parseEther(amount) });
-  await tx.wait();
+  return await tx.wait();
 };
 
 export const getTotalContribution = async () => {
@@ -158,12 +168,12 @@ export const getTotalParticipants = async () => {
   return totalParticipants.toNumber();
 };
 
-export const makeAClaim = async (amount: any, reasonHash: string, proofData: any) => {
+export const makeAClaim = async (amount: any, reasonHash: string) => {
   const { signer } = await connectWallet();
   const contract = getContractDetail(signer);
 
-  const tx = await contract.submitClaim(amount, reasonHash, proofData.a, proofData.b, proofData.c, proofData.input);
-  await tx.wait(); // Wait for transaction to be mined
+  const tx = await contract.submitClaim(amount, reasonHash);
+  return await tx.wait(); // Wait for transaction to be mined
 }
 
 export const voteOnClaim = async (claimId: number, approve: boolean) => {

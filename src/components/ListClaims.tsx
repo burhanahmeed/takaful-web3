@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { decideClaim, isAdmin as isAdminFunc, listClaims, voteOnClaim } from "@/utils/wallet";
+import { decideClaim, getNetworkCurrency, isAdmin as isAdminFunc, listClaims, voteOnClaim } from "@/utils/wallet";
 import { formatAddress } from "@/utils/string";
 
 export default function ListClaims() {
@@ -7,6 +7,12 @@ export default function ListClaims() {
   const [loading, setLoading] = useState(false);
 
   const [isAdmin, setIsAdmin] = useState(false);
+  const [currency, setCurrency] = useState('ETH');
+
+  const getCurrency = async () => {
+    const currency = await getNetworkCurrency();
+    setCurrency(currency);
+  };
 
   useEffect(() => {
     const checkAdmin = async () => {
@@ -16,6 +22,7 @@ export default function ListClaims() {
 
     checkAdmin();
     loadClaims();
+    getCurrency();
   }, []);
 
   const loadClaims = async () => {
@@ -91,7 +98,7 @@ export default function ListClaims() {
               </div>
               <div>
                 <p className="font-bold">Amount:</p>
-                <p>{claim.amount} ETH</p>
+                <p>{claim.amount} {currency}</p>
               </div>
               <div>
                 <p className="font-bold">Reason:</p>
