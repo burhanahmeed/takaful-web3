@@ -1,8 +1,8 @@
 import * as ethers from 'ethers';
-// import ContractABI from '../../contracts/contactABI.json'
-import takafulAbi from '../../artifacts/contracts/takaful.sol/Takaful.json'
+import ContractABI from '../../contracts/contactABI.json'
+// import takafulAbi from '../../artifacts/contracts/takaful.sol/Takaful.json'
 
-const ContractABI = takafulAbi.abi;
+// const ContractABI = takafulAbi.abi;
 
 export const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
 
@@ -12,11 +12,11 @@ const haqqNetwork = {
   rpc: 'https://rpc.eth.testedge2.haqq.network'  // HAQQ RPC URL
 };
 
-export const connectWallet = async () => {
+export const connectWalletRpc = async () => {
   if (typeof window.ethereum !== 'undefined') {
     try {
       const provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545/');
-      const wallet = new ethers.Wallet('0xdf57089febbacf7ba0bc227dafbffa9fc08a93fdc68e1e42411a14efcf23656e', provider);
+      const wallet = new ethers.Wallet('', provider);
       const address = wallet.address
       const balance = wallet.getBalance();
       const signer = provider.getSigner();
@@ -31,7 +31,7 @@ export const connectWallet = async () => {
   }
 };
 
-export async function connectWalletMM() {
+export async function connectWallet() {
   if (typeof window.ethereum !== 'undefined') {
     try {
       // Request account access
