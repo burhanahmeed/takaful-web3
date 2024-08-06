@@ -17,7 +17,9 @@ contract Takaful {
     uint256 public totalContributions;
     mapping(address => uint256) public contributions;
     mapping(uint256 => Claim) public claims;
+    mapping(uint256 => mapping(address => bool)) public hasVoted;
     uint256 public claimCount;
+    uint256 public contributionCount;
     uint256 public votingPeriod = 2 days;
 
     modifier onlyAdmin() {
@@ -39,6 +41,7 @@ contract Takaful {
         require(msg.value <= msg.sender.balance, "Contribution exceeds wallet balance");
         contributions[msg.sender] += msg.value;
         totalContributions += msg.value;
+        contributionCount++;
     }
 
     function submitClaim(
@@ -60,16 +63,23 @@ contract Takaful {
         claimCount++;
     }
 
+    function hasVotedFunction(uint256 claimId, address participant) public view returns (bool) {
+        return hasVoted[claimId][participant];
+    }
+
     function voteOnClaim(uint256 claimId, bool approve) public onlyParticipants {
         Claim storage claim = claims[claimId];
         require(block.timestamp <= claim.votingDeadline, "Voting period has ended");
         require(!claim.decided, "Claim has already been decided");
+        require(!hasVoted[claimId][msg.sender], "Participant has already voted");
 
         if (approve) {
             claim.votesFor++;
         } else {
             claim.votesAgainst++;
         }
+
+        hasVoted[claimId][msg.sender] = true;
 
         // Automatically decide the claim if all participants have voted
         if (claim.votesFor + claim.votesAgainst == getTotalParticipants() - 1) {
@@ -93,20 +103,20 @@ contract Takaful {
     }
 
     function getAllParticipants() internal view returns (address[] memory) {
+        address[] memory participants = new address[](contributionCount);
         uint256 participantCount = 0;
-        address[] memory participants = new address[](claimCount);
 
-        for (uint256 i = 0; i < claimCount; i++) {
-            address participant = claims[i].claimant;
+        for (uint256 i = 0; i < contributionCount; i++) {
+            address participant = participants[i];
             if (contributions[participant] > 0) {
-                bool isNew = true;
+                bool isDuplicate = false;
                 for (uint256 j = 0; j < participantCount; j++) {
                     if (participants[j] == participant) {
-                        isNew = false;
+                        isDuplicate = true;
                         break;
                     }
                 }
-                if (isNew) {
+                if (!isDuplicate) {
                     participants[participantCount] = participant;
                     participantCount++;
                 }

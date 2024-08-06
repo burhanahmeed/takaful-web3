@@ -1,10 +1,10 @@
 import * as ethers from 'ethers';
-import ContractABI from '../../contracts/contactABI.json'
-// import takafulAbi from '../../artifacts/contracts/takaful.sol/Takaful.json'
+// import ContractABI from '../../contracts/contactABI.json'
+import takafulAbi from '../../artifacts/contracts/takaful.sol/Takaful.json'
 
-// const ContractABI = takafulAbi.abi;
+const ContractABI = takafulAbi.abi;
 
-export const contractAddress = '0xeb94b8d26cEcb9097C06e8262eDE92777f5E9722';
+export const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
 
 const haqqNetwork = {
   chainId: 54211,  // HAQQ chain ID
@@ -12,11 +12,11 @@ const haqqNetwork = {
   rpc: 'https://rpc.eth.testedge2.haqq.network'  // HAQQ RPC URL
 };
 
-export const connectWalletRpc = async () => {
+export const connectWallet = async () => {
   if (typeof window.ethereum !== 'undefined') {
     try {
       const provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545/');
-      const wallet = new ethers.Wallet('', provider);
+      const wallet = new ethers.Wallet('0xdf57089febbacf7ba0bc227dafbffa9fc08a93fdc68e1e42411a14efcf23656e', provider);
       const address = wallet.address
       const balance = wallet.getBalance();
       const signer = provider.getSigner();
@@ -31,7 +31,7 @@ export const connectWalletRpc = async () => {
   }
 };
 
-export async function connectWallet() {
+export async function connectWalletMM() {
   if (typeof window.ethereum !== 'undefined') {
     try {
       // Request account access
@@ -141,15 +141,21 @@ export const listClaims = async () => {
   const { signer } = await connectWallet();
   const contract = getContractDetail(signer);
   const claims = await contract.listClaims();
-  return claims.map((claim: any) => ({
-    claimant: claim.claimant,
-    amount: ethers.utils.formatEther(claim.amount),
-    reason: claim.reason,
-    votesFor: claim.votesFor.toNumber(),
-    votesAgainst: claim.votesAgainst.toNumber(),
-    decided: claim.decided,
-    approved: claim.approved,
-    votingDeadline: new Date(claim.votingDeadline.toNumber() * 1000)
+  const address = await signer.getAddress();
+
+  return Promise.all(claims.map(async (claim: any, idx: number) => {
+    const hasVoted = await contract.hasVotedFunction(idx, address);
+    return {
+      claimant: claim.claimant,
+      amount: ethers.utils.formatEther(claim.amount),
+      reason: claim.reason,
+      votesFor: claim.votesFor.toNumber(),
+      votesAgainst: claim.votesAgainst.toNumber(),
+      decided: claim.decided,
+      approved: claim.approved,
+      votingDeadline: new Date(claim.votingDeadline.toNumber() * 1000),
+      hasVoted: hasVoted
+    };
   }));
 };
 

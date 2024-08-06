@@ -28,7 +28,7 @@ export default function ListClaims() {
   const loadClaims = async () => {
     try {
       setLoading(true);
-      const claimsList = await listClaims();
+      const claimsList: any = await listClaims();
       console.log(claimsList);
       
       setClaims(claimsList);
@@ -127,10 +127,14 @@ export default function ListClaims() {
             </div>
             <div className="mt-4">
               {!claim.decided && (
-                <>
-                  <button onClick={() => handleVote(index, true)} className="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">Approve</button>
-                  <button onClick={() => handleVote(index, false)} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded ml-4">Reject</button>
-                </>
+                claim.hasVoted ? (
+                  <p>You have already voted on this claim.</p>
+                ) : (
+                  <>
+                    <button onClick={() => handleVote(index, true)} className="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">Approve</button>
+                    <button onClick={() => handleVote(index, false)} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded ml-4">Reject</button>
+                  </>
+                )
               )}
               {isAdmin && !claim.decided && (
                 <button onClick={() => deceideClaimFn(index)} className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded ml-4">Deciede Claim</button>
