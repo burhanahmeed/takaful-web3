@@ -4,7 +4,7 @@ import ContractABI from '../../contracts/contactABI.json'
 
 // const ContractABI = takafulAbi.abi;
 
-export const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
+export const contractAddress = '0x75396387172c596EfaF43Be5B0f9bD366F1Fd344';
 
 const haqqNetwork = {
   chainId: 54211,  // HAQQ chain ID
